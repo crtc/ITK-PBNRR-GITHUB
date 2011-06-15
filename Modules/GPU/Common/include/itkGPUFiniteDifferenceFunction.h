@@ -31,11 +31,10 @@ namespace itk
 /**
  * \class GPUFiniteDifferenceFunction
  *
- * This is a base class of GPU finite difference function.
- * Note that unlike most GPU classes, derived class of GPUFiniteDifferenceFunction
- * does not have corresponding CPU class as its parent but only has CPU class
- * FiniteDifferenceFunction as its base class. Therefore, only members of
- * FiniteDifferenceFunction are reused by its derived GPU classes.
+ * This is a base class of GPU finite difference function. Similar to other
+ * GPU classes, derived class of GPU Finite Difference Function classes
+ * are derived from their CPU Function class and most of member variables/functions
+ * are reused.
  *
  * \par How to use this class
  * GPUFiniteDifferenceFunction must be subclassed to add functionality for
