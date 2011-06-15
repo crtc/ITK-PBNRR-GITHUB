@@ -19,6 +19,7 @@
 #define __itkGPUPDEDeformableRegistrationFunction_h
 
 #include "itkFiniteDifferenceFunction.h"
+#include "itkPDEDeformableRegistrationFunction.h"
 
 namespace itk
 {
@@ -36,14 +37,15 @@ namespace itk
  * \sa PDEDeformableRegistrationFilter
  * \ingroup FiniteDifferenceFunctions
  */
-template< class TFixedImage, class TMovingImage, class TDeformationField >
+template< class TFixedImage, class TMovingImage, class TDeformationField,
+          class TParentFunction = PDEDeformableRegistrationFunction< TFixedImage, TMovingImage, TDeformationField > >
 class ITK_EXPORT GPUPDEDeformableRegistrationFunction:
-  public GPUFiniteDifferenceFunction< TDeformationField >
+  public GPUFiniteDifferenceFunction< TDeformationField, TParentFunction >
 {
 public:
   /** Standard class typedefs. */
   typedef GPUPDEDeformableRegistrationFunction          Self;
-  typedef GPUFiniteDifferenceFunction< TDeformationField > Superclass;
+  typedef GPUFiniteDifferenceFunction< TDeformationField, TParentFunction > Superclass;
   typedef SmartPointer< Self >                          Pointer;
   typedef SmartPointer< const Self >                    ConstPointer;
 

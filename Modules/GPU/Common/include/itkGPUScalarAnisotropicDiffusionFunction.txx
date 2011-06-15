@@ -27,8 +27,8 @@
 namespace itk
 {
 
-template< class TImage >
-GPUScalarAnisotropicDiffusionFunction< TImage >
+template< class TImage, class TParentFunction >
+GPUScalarAnisotropicDiffusionFunction< TImage, TParentFunction >
 ::GPUScalarAnisotropicDiffusionFunction()
 {
   m_AnisotropicDiffusionFunctionGPUBuffer = GPUDataManager::New();
@@ -59,9 +59,9 @@ GPUScalarAnisotropicDiffusionFunction< TImage >
   this->m_AverageGradientMagnitudeSquaredGPUKernelHandle = this->m_AnisotropicDiffusionFunctionGPUKernelManager->CreateKernel("AverageGradientMagnitudeSquared");
 }
 
-template< class TImage >
+template< class TImage, class TParentFunction >
 void
-GPUScalarAnisotropicDiffusionFunction< TImage >
+GPUScalarAnisotropicDiffusionFunction< TImage, TParentFunction >
 ::GPUCalculateAverageGradientMagnitudeSquared(TImage *ip)
 {
   // GPU kernel to compute Average Squared Gradient Magnitude

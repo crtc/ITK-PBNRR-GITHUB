@@ -20,7 +20,6 @@
 
 #include "itkGPUAnisotropicDiffusionFunction.h"
 
-
 namespace itk
 {
 /**
@@ -31,14 +30,14 @@ namespace itk
  *
  * \ingroup GPUCommon
  * */
-template< class TImage >
+template< class TImage, class TParentFunction = ScalarAnisotropicDiffusionFunction< TImage > >
 class ITK_EXPORT GPUScalarAnisotropicDiffusionFunction:
-  public GPUAnisotropicDiffusionFunction< TImage >
+  public GPUAnisotropicDiffusionFunction< TImage, TParentFunction >
 {
 public:
   /** Standard class typedefs. */
   typedef GPUScalarAnisotropicDiffusionFunction     Self;
-  typedef GPUAnisotropicDiffusionFunction< TImage > Superclass;
+  typedef GPUAnisotropicDiffusionFunction< TImage, TParentFunction > Superclass;
   typedef SmartPointer< Self >                   Pointer;
   typedef SmartPointer< const Self >             ConstPointer;
 

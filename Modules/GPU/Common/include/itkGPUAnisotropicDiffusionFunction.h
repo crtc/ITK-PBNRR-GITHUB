@@ -34,14 +34,14 @@ namespace itk
  *
  * \ingroup GPUCommon
  */
-template< class TImage >
+template< class TImage, class TParentFunction = AnisotropicDiffusionFunction< TImage > >
 class ITK_EXPORT GPUAnisotropicDiffusionFunction:
-  public GPUFiniteDifferenceFunction< TImage >
+  public GPUFiniteDifferenceFunction< TImage, TParentFunction >
 {
 public:
   /** Standard class typedefs. */
   typedef GPUAnisotropicDiffusionFunction       Self;
-  typedef GPUFiniteDifferenceFunction< TImage > Superclass;
+  typedef GPUFiniteDifferenceFunction< TImage, TParentFunction > Superclass;
   typedef SmartPointer< Self >               Pointer;
   typedef SmartPointer< const Self >         ConstPointer;
 
@@ -67,77 +67,14 @@ public:
       calibrate the conductance term. */
   virtual void GPUCalculateAverageGradientMagnitudeSquared(ImageType *) = 0;
 
-  /** Set/Get the time step. For this class of anisotropic diffusion filters,
-      the time-step is supplied by the user and remains fixed for all
-      updates. */
-  void SetTimeStep(const TimeStepType & t)
-  {
-    m_TimeStep = t;
-  }
-
-  const TimeStepType & GetTimeStep() const
-  {
-    return m_TimeStep;
-  }
-
-  /** Set/Get the conductance parameter.  The conductance parameter. */
-  void SetConductanceParameter(const double & c)
-  {
-    m_ConductanceParameter = c;
-  }
-
-  const double & GetConductanceParameter() const
-  {
-    return m_ConductanceParameter;
-  }
-
-  /** Set/Get the average gradient magnitude squared. */
-  const double & GetAverageGradientMagnitudeSquared() const
-  {
-    return m_AverageGradientMagnitudeSquared;
-  }
-
-  void SetAverageGradientMagnitudeSquared(const double & c)
-  {
-    m_AverageGradientMagnitudeSquared = c;
-  }
-
-  /** Returns the time step supplied by the user.  We don't need to use the
-   * global data supplied since we are returning a fixed value.  */
-  virtual TimeStepType ComputeGlobalTimeStep( void *itkNotUsed(GlobalData) ) const
-  {
-    return this->GetTimeStep();
-  }
-
-  /** The anisotropic diffusion classes don't use this particular parameter
-   * so it's safe to return a null value. */
-  virtual void * GetGlobalDataPointer() const
-  {
-    return 0;
-  }
-
-  /** Does nothing.  No global data is used in this class of equations.   */
-  virtual void ReleaseGlobalDataPointer( void *itkNotUsed(GlobalData) ) const
-  {
-    /* do nothing */
-  }
-
 protected:
-  GPUAnisotropicDiffusionFunction()
-  {
-    m_AverageGradientMagnitudeSquared = 0.0;
-    m_ConductanceParameter     = 1.0;     // default value
-    m_TimeStep                 = 0.125f;  // default value
-  }
+  GPUAnisotropicDiffusionFunction() {}
 
   ~GPUAnisotropicDiffusionFunction() {}
 
   void PrintSelf(std::ostream & os, Indent indent) const
   {
     Superclass::PrintSelf(os, indent);
-    os << indent << "TimeStep: " << m_TimeStep << std::endl;
-    os << indent << "ConductanceParameter: " << m_ConductanceParameter
-       << std::endl;
   }
 
   // GPU buffer for Computing Average Squared Gradient Magnitude
@@ -147,14 +84,10 @@ protected:
   // GPU Kernel Handles
   int m_AverageGradientMagnitudeSquaredGPUKernelHandle;
 
-
 private:
   GPUAnisotropicDiffusionFunction(const Self &); //purposely not implemented
   void operator=(const Self &);               //purposely not implemented
 
-  double       m_AverageGradientMagnitudeSquared;
-  double       m_ConductanceParameter;
-  TimeStepType m_TimeStep;
 };
 } // end namespace itk
 

@@ -18,10 +18,11 @@
 #ifndef __itkGPUGradientNDAnisotropicDiffusionFunction_h
 #define __itkGPUGradientNDAnisotropicDiffusionFunction_h
 
-#include "itkGPUScalarAnisotropicDiffusionFunction.h"
 #include "itkNeighborhoodAlgorithm.h"
 #include "itkNeighborhoodInnerProduct.h"
 #include "itkDerivativeOperator.h"
+#include "itkGPUScalarAnisotropicDiffusionFunction.h"
+#include "itkGradientNDAnisotropicDiffusionFunction.h"
 
 namespace itk
 {
@@ -51,14 +52,14 @@ namespace itk
  *
  * \ingroup GPUCommon
  */
-template< class TImage >
+template< class TImage, class TParentFunction = GradientNDAnisotropicDiffusionFunction< TImage > >
 class ITK_EXPORT GPUGradientNDAnisotropicDiffusionFunction:
-  public GPUScalarAnisotropicDiffusionFunction< TImage >
+  public GPUScalarAnisotropicDiffusionFunction< TImage, TParentFunction >
 {
 public:
   /** Standard class typedefs. */
   typedef GPUGradientNDAnisotropicDiffusionFunction       Self;
-  typedef GPUScalarAnisotropicDiffusionFunction< TImage > Superclass;
+  typedef GPUScalarAnisotropicDiffusionFunction< TImage, TParentFunction > Superclass;
   typedef SmartPointer< Self >                         Pointer;
   typedef SmartPointer< const Self >                   ConstPointer;
 
@@ -77,8 +78,7 @@ public:
   typedef typename Superclass::RadiusType       RadiusType;
   typedef typename Superclass::NeighborhoodType NeighborhoodType;
   typedef typename Superclass::FloatOffsetType  FloatOffsetType;
-
-  typedef SizeValueType NeighborhoodSizeValueType;
+  typedef typename Superclass::NeighborhoodSizeValueType NeighborhoodSizeValueType;
 
   /** Inherit some parameters from the superclass type. */
   itkStaticConstMacro(ImageDimension, unsigned int, Superclass::ImageDimension);
@@ -86,34 +86,9 @@ public:
   /** Compute the equation value. */
   virtual void GPUComputeUpdate( typename const TImage::Pointer output, typename TImage::Pointer buffer, void *globalData );
 
-
-  /** This method is called prior to each iteration of the solver. */
-  virtual void InitializeIteration()
-  {
-    m_K = static_cast< PixelType >( this->GetAverageGradientMagnitudeSquared()
-                                    * this->GetConductanceParameter() * this->GetConductanceParameter() * -2.0f );
-  }
-
 protected:
   GPUGradientNDAnisotropicDiffusionFunction();
   ~GPUGradientNDAnisotropicDiffusionFunction() {}
-
-  /** Inner product function. */
-  NeighborhoodInnerProduct< ImageType > m_InnerProduct;
-
-  /** Slices for the ND neighborhood. */
-  std::slice x_slice[ImageDimension];
-  std::slice xa_slice[ImageDimension][ImageDimension];
-  std::slice xd_slice[ImageDimension][ImageDimension];
-
-  /** Derivative operator. */
-  DerivativeOperator< PixelType, itkGetStaticConstMacro(ImageDimension) > dx_op;
-
-  /** Modified global average gradient magnitude term. */
-  PixelType m_K;
-
-  NeighborhoodSizeValueType m_Center;
-  NeighborhoodSizeValueType m_Stride[ImageDimension];
 
   static double m_MIN_NORM;
 private:

@@ -27,8 +27,8 @@ namespace itk
 /**
  * Default constructor
  */
-template< class TFixedImage, class TMovingImage, class TDeformationField >
-GPUDemonsRegistrationFunction< TFixedImage, TMovingImage, TDeformationField >
+template< class TFixedImage, class TMovingImage, class TDeformationField, class TParentFunction >
+GPUDemonsRegistrationFunction< TFixedImage, TMovingImage, TDeformationField, TParentFunction >
 ::GPUDemonsRegistrationFunction()
 {
   RadiusType   r;
@@ -100,9 +100,9 @@ GPUDemonsRegistrationFunction< TFixedImage, TMovingImage, TDeformationField >
 /**
  * Standard "PrintSelf" method.
  */
-template< class TFixedImage, class TMovingImage, class TDeformationField >
+template< class TFixedImage, class TMovingImage, class TDeformationField, class TParentFunction  >
 void
-GPUDemonsRegistrationFunction< TFixedImage, TMovingImage, TDeformationField >
+GPUDemonsRegistrationFunction< TFixedImage, TMovingImage, TDeformationField, TParentFunction >
 ::PrintSelf(std::ostream & os, Indent indent) const
 {
   Superclass::PrintSelf(os, indent);
@@ -134,9 +134,9 @@ GPUDemonsRegistrationFunction< TFixedImage, TMovingImage, TDeformationField >
 /**
  *
  */
-template< class TFixedImage, class TMovingImage, class TDeformationField >
+template< class TFixedImage, class TMovingImage, class TDeformationField, class TParentFunction >
 void
-GPUDemonsRegistrationFunction< TFixedImage, TMovingImage, TDeformationField >
+GPUDemonsRegistrationFunction< TFixedImage, TMovingImage, TDeformationField, TParentFunction >
 ::SetIntensityDifferenceThreshold(double threshold)
 {
   m_IntensityDifferenceThreshold = threshold;
@@ -145,9 +145,9 @@ GPUDemonsRegistrationFunction< TFixedImage, TMovingImage, TDeformationField >
 /**
  *
  */
-template< class TFixedImage, class TMovingImage, class TDeformationField >
+template< class TFixedImage, class TMovingImage, class TDeformationField, class TParentFunction >
 double
-GPUDemonsRegistrationFunction< TFixedImage, TMovingImage, TDeformationField >
+GPUDemonsRegistrationFunction< TFixedImage, TMovingImage, TDeformationField, TParentFunction >
 ::GetIntensityDifferenceThreshold() const
 {
   return m_IntensityDifferenceThreshold;
@@ -156,9 +156,9 @@ GPUDemonsRegistrationFunction< TFixedImage, TMovingImage, TDeformationField >
 /**
  * Set the function state values before each iteration
  */
-template< class TFixedImage, class TMovingImage, class TDeformationField >
+template< class TFixedImage, class TMovingImage, class TDeformationField, class TParentFunction >
 void
-GPUDemonsRegistrationFunction< TFixedImage, TMovingImage, TDeformationField >
+GPUDemonsRegistrationFunction< TFixedImage, TMovingImage, TDeformationField,TParentFunction >
 ::InitializeIteration()
 {
   if ( !this->GetMovingImage() || !this->GetFixedImage() || !m_MovingImageInterpolator )
@@ -195,9 +195,9 @@ GPUDemonsRegistrationFunction< TFixedImage, TMovingImage, TDeformationField >
  * Compute update at a specify neighbourhood
  */
 
-template< class TFixedImage, class TMovingImage, class TDeformationField >
+template< class TFixedImage, class TMovingImage, class TDeformationField, class TParentFunction >
 void
-GPUDemonsRegistrationFunction< TFixedImage, TMovingImage, TDeformationField >
+GPUDemonsRegistrationFunction< TFixedImage, TMovingImage, TDeformationField, TParentFunction >
 ::GPUComputeUpdate( DeformationFieldTypePointer output,
                     DeformationFieldTypePointer update,
                     void *gd
@@ -247,10 +247,10 @@ GPUDemonsRegistrationFunction< TFixedImage, TMovingImage, TDeformationField >
 /**
  * Compute update at a specify neighbourhood
  */
-template< class TFixedImage, class TMovingImage, class TDeformationField >
-typename GPUDemonsRegistrationFunction< TFixedImage, TMovingImage, TDeformationField >
+template< class TFixedImage, class TMovingImage, class TDeformationField, class TParentFunction >
+typename GPUDemonsRegistrationFunction< TFixedImage, TMovingImage, TDeformationField, TParentFunction >
 ::PixelType
-GPUDemonsRegistrationFunction< TFixedImage, TMovingImage, TDeformationField >
+GPUDemonsRegistrationFunction< TFixedImage, TMovingImage, TDeformationField, TParentFunction >
 ::ComputeUpdate( const NeighborhoodType & it, void *gd,
                  const FloatOffsetType & itkNotUsed(offset) )
 {
@@ -342,9 +342,9 @@ GPUDemonsRegistrationFunction< TFixedImage, TMovingImage, TDeformationField >
 /**
  * Update the metric and release the per-thread-global data.
  */
-template< class TFixedImage, class TMovingImage, class TDeformationField >
+template< class TFixedImage, class TMovingImage, class TDeformationField, class TParentFunction >
 void
-GPUDemonsRegistrationFunction< TFixedImage, TMovingImage, TDeformationField >
+GPUDemonsRegistrationFunction< TFixedImage, TMovingImage, TDeformationField, TParentFunction >
 ::ReleaseGlobalDataPointer(void *gd) const
 {
   GlobalDataStruct *globalData = (GlobalDataStruct *)gd;

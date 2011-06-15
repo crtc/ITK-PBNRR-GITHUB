@@ -25,14 +25,15 @@
 
 namespace itk
 {
-template< class TImage >
-double GPUGradientNDAnisotropicDiffusionFunction< TImage >
+template< class TImage, class TParentFunction >
+double GPUGradientNDAnisotropicDiffusionFunction< TImage, TParentFunction >
 ::m_MIN_NORM = 1.0e-10;
 
-template< class TImage >
-GPUGradientNDAnisotropicDiffusionFunction< TImage >
+template< class TImage, class TParentFunction >
+GPUGradientNDAnisotropicDiffusionFunction< TImage, TParentFunction >
 ::GPUGradientNDAnisotropicDiffusionFunction()
 {
+  /*
   unsigned int i, j;
   RadiusType   r;
 
@@ -77,6 +78,7 @@ GPUGradientNDAnisotropicDiffusionFunction< TImage >
                           // fashion.
   dx_op.SetOrder(1);
   dx_op.CreateDirectional();
+*/
 
   //
   // Create GPU Kernel
@@ -105,9 +107,9 @@ GPUGradientNDAnisotropicDiffusionFunction< TImage >
   this->m_ComputeUpdateGPUKernelHandle = this->m_GPUKernelManager->CreateKernel("ComputeUpdate");
 }
 
-template< class TImage >
+template< class TImage, class TParentFunction >
 void
-GPUGradientNDAnisotropicDiffusionFunction< TImage >
+GPUGradientNDAnisotropicDiffusionFunction< TImage, TParentFunction >
 ::GPUComputeUpdate( typename const TImage::Pointer output, typename TImage::Pointer buffer, void *globalData )
 {
   /** Launch GPU kernel to update buffer with output

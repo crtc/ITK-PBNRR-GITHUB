@@ -48,17 +48,21 @@ namespace itk
  * \sa DemonsRegistrationFilter
  * \ingroup FiniteDifferenceFunctions
  */
-template< class TFixedImage, class TMovingImage, class TDeformationField >
+template< class TFixedImage, class TMovingImage, class TDeformationField,
+          class TParentFunction = DemonsRegistrationFunction< TFixedImage, TMovingImage, TDeformationField > >
 class ITK_EXPORT GPUDemonsRegistrationFunction:
   public GPUPDEDeformableRegistrationFunction< TFixedImage,
                                             TMovingImage,
-                                            TDeformationField >
+                                            TDeformationField,
+                                            TParentFunction >
 {
 public:
   /** Standard class typedefs. */
   typedef GPUDemonsRegistrationFunction Self;
-  typedef GPUPDEDeformableRegistrationFunction< TFixedImage, TMovingImage,
-    TDeformationField>                  Superclass;
+  typedef GPUPDEDeformableRegistrationFunction< TFixedImage,
+                                                TMovingImage,
+                                                TDeformationField,
+                                                TParentFunction>  Superclass;
   typedef SmartPointer< Self >          Pointer;
   typedef SmartPointer< const Self >    ConstPointer;
 
