@@ -66,6 +66,7 @@ public:
    * because PixelType may often be a vector value, while the TimeStep is
    * a scalar value. */
   typedef typename GPUFiniteDifferenceFunction< TOutputImage >::DifferenceFunctionType FiniteDifferenceFunctionType;
+  typedef typename GPUFiniteDifferenceFunction< TOutputImage > GPUFiniteDifferenceFunctionType;
   //typedef typename GPUFiniteDifferenceFunction< TOutputImage > FiniteDifferenceFunctionType;
   typedef typename FiniteDifferenceFunctionType::TimeStepType TimeStepType;
   typedef typename FiniteDifferenceFunctionType::RadiusType   RadiusType;
@@ -74,48 +75,48 @@ public:
   /** This method returns a pointer to a FiniteDifferenceFunction object that
    * will be used by the filter to calculate updates at image pixels.
    * \returns A FiniteDifferenceObject pointer. */
-  itkGetConstReferenceObjectMacro(DifferenceFunction, FiniteDifferenceFunctionType);
+  //itkGetConstReferenceObjectMacro(DifferenceFunction, FiniteDifferenceFunctionType);
   //itkGetMacro(DifferenceFunction, FiniteDifferenceFunctionType);
 
   /** This method sets the pointer to a FiniteDifferenceFunction object that
    * will be used by the filter to calculate updates at image pixels.
    * \returns A FiniteDifferenceObject pointer. */
-  itkSetObjectMacro(DifferenceFunction, FiniteDifferenceFunctionType);
+  //itkSetObjectMacro(DifferenceFunction, FiniteDifferenceFunctionType);
 
   typedef enum { UNINITIALIZED = 0, INITIALIZED = 1 } FilterStateType;
 
   /** Use the image spacing information in calculations. Use this option if you
    *  want derivatives in physical space. Default is UseImageSpacingOff. */
-  itkSetMacro(UseImageSpacing, bool);
-  itkBooleanMacro(UseImageSpacing);
-  itkGetConstReferenceMacro(UseImageSpacing, bool);
+  //itkSetMacro(UseImageSpacing, bool);
+  //itkBooleanMacro(UseImageSpacing);
+  //itkGetConstReferenceMacro(UseImageSpacing, bool);
 
   /** Set/Get the maximum error allowed in the solution.  This may not be
       defined for all solvers and its meaning may change with the application. */
-  itkSetMacro(MaximumRMSError, double);
-  itkGetConstReferenceMacro(MaximumRMSError, double);
+  //itkSetMacro(MaximumRMSError, double);
+  //itkGetConstReferenceMacro(MaximumRMSError, double);
 
   /** Set/Get the root mean squared change of the previous iteration. May not
       be used by all solvers. */
-  itkSetMacro(RMSChange, double);
-  itkGetConstReferenceMacro(RMSChange, double);
+  //itkSetMacro(RMSChange, double);
+  //itkGetConstReferenceMacro(RMSChange, double);
 
   /** Set the state of the filter to INITIALIZED */
-  void SetStateToInitialized()
-  {
-    this->SetState(INITIALIZED);
-  }
+  //void SetStateToInitialized()
+  //{
+  //  this->SetState(INITIALIZED);
+  //}
 
   /** Set the state of the filter to UNINITIALIZED */
-  void SetStateToUninitialized()
-  {
-    this->SetState(UNINITIALIZED);
-  }
+  //void SetStateToUninitialized()
+  //{
+  //  this->SetState(UNINITIALIZED);
+  //}
 
   /** Set/Get the state of the filter. */
 #if !defined( CABLE_CONFIGURATION )
-  itkSetMacro(State, FilterStateType);
-  itkGetConstReferenceMacro(State, FilterStateType);
+  //itkSetMacro(State, FilterStateType);
+  //itkGetConstReferenceMacro(State, FilterStateType);
 #endif
 
   /** Require the filter to be manually reinitialized (by calling
@@ -195,7 +196,7 @@ protected:
    * initialization, i.e. in the SparseFieldLevelSetImageFilter, initialize
    * the list of layers.
    * */
-  virtual void Initialize() {}
+  virtual void Initialize() { this->GPUSuperclass::Initialize(); }
 
   /** This method is optionally defined by a subclass and is called immediately
    * prior to each iterative CalculateChange-ApplyUpdate cycle.  It can be
@@ -203,8 +204,8 @@ protected:
    * gradient magnitude of the image in anisotropic diffusion functions), or
    * otherwise prepare for the next iteration.
    * */
-  virtual void InitializeIteration()
-  { m_DifferenceFunction->InitializeIteration(); }
+  //virtual void InitializeIteration()
+  //{ m_DifferenceFunction->InitializeIteration(); }
 
   /** Virtual method for resolving a single time step from a set of time steps
    * returned from processing threads.
@@ -227,7 +228,7 @@ protected:
   virtual void PostProcessOutput() {}
 
   /** Set the number of elapsed iterations of the filter. */
-  itkSetMacro(ElapsedIterations, unsigned int);
+  //itkSetMacro(ElapsedIterations, unsigned int);
 
   /** The maximum number of iterations this filter will run */
 
@@ -239,10 +240,10 @@ protected:
 
   /** Indicates whether the filter automatically resets to UNINITIALIZED state
       after completing, or whether filter must be manually reset */
-  bool m_ManualReinitialization;
+  //bool m_ManualReinitialization;
 
-  double m_RMSChange;
-  double m_MaximumRMSError;
+  //double m_RMSChange;
+  //double m_MaximumRMSError;
 
 private:
 
@@ -255,14 +256,14 @@ private:
   void InitializeFunctionCoefficients();
 
  /** The function that will be used in calculating updates for each pixel. */
-  typename FiniteDifferenceFunctionType::Pointer m_DifferenceFunction;
+  //typename FiniteDifferenceFunctionType::Pointer m_DifferenceFunction;
 
   /** Control whether derivatives use spacing of the input image in
       its calculation. */
-  bool m_UseImageSpacing;
+  //bool m_UseImageSpacing;
 
   /** State that the filter is in, i.e. UNINITIALIZED or INITIALIZED */
-  FilterStateType m_State;
+  //FilterStateType m_State;
 };
 } // end namespace itk
 

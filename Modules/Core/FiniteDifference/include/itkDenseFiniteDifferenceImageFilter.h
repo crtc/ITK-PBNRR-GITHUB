@@ -182,7 +182,6 @@ private:
    * which it then passes to ThreadedCalculateChange for processing. */
   static ITK_THREAD_RETURN_TYPE CalculateChangeThreaderCallback(void *arg);
 
-//protected: // allow access of m_UpdateBuffer from child classes
   /** The buffer that holds the updates for an iteration of the algorithm. */
   typename UpdateBufferType::Pointer m_UpdateBuffer;
 };

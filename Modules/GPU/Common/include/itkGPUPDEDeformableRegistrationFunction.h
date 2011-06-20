@@ -65,46 +65,9 @@ public:
   typedef TDeformationField                      DeformationFieldType;
   typedef typename DeformationFieldType::Pointer DeformationFieldTypePointer;
 
-  /** Set the moving image.  */
-  void SetMovingImage(const MovingImageType *ptr)
-  { m_MovingImage = ptr; }
-
-  /** Get the moving image. */
-  const MovingImageType * GetMovingImage(void) const
-  { return m_MovingImage; }
-
-  /** Set the fixed image. */
-  void SetFixedImage(const FixedImageType *ptr)
-  { m_FixedImage = ptr; }
-
-  /** Get the fixed image. */
-  const FixedImageType * GetFixedImage(void) const
-  { return m_FixedImage; }
-
-  /** Set the deformation field image. */
-  void SetDeformationField(DeformationFieldTypePointer ptr)
-  { m_DeformationField = ptr; }
-
-  /** Get the deformation field. This function should have been
-   *  declared const. It is not for backward compatibility reasons. */
-  DeformationFieldType * GetDeformationField(void)
-  { return m_DeformationField; }
-
-  void SetEnergy(double e) { m_Energy = e; }
-  double GetEnergy() const { return m_Energy; }
-  void SetGradientStep(double e) { m_GradientStep = e; }
-  double GetGradientStep() const { return m_GradientStep; }
-  void SetNormalizeGradient(bool e) { m_NormalizeGradient = e; }
-  bool GetNormalizeGradient() const { return m_NormalizeGradient; }
 protected:
   GPUPDEDeformableRegistrationFunction()
   {
-    m_MovingImage = NULL;
-    m_FixedImage = NULL;
-    m_DeformationField = NULL;
-    m_Energy = 0.0;
-    m_NormalizeGradient = true;
-    m_GradientStep = 1.0;
   }
 
   ~GPUPDEDeformableRegistrationFunction() {}
@@ -112,26 +75,8 @@ protected:
   void PrintSelf(std::ostream & os, Indent indent) const
   {
     Superclass::PrintSelf(os, indent);
-    os << indent << "MovingImage: ";
-    os << m_MovingImage.GetPointer() << std::endl;
-    os << indent << "FixedImage: ";
-    os << m_FixedImage.GetPointer() << std::endl;
   }
 
-  /** The moving image. */
-  MovingImagePointer m_MovingImage;
-
-  /** The fixed image. */
-  FixedImagePointer m_FixedImage;
-
-  /** The deformation field. */
-  DeformationFieldTypePointer m_DeformationField;
-
-  mutable double m_Energy;
-
-  bool m_NormalizeGradient;
-
-  mutable double m_GradientStep;
 private:
   GPUPDEDeformableRegistrationFunction(const Self &); //purposely not implemented
   void operator=(const Self &);                    //purposely not implemented

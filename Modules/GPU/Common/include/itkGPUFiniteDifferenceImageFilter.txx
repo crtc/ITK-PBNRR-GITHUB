@@ -29,6 +29,7 @@ template< class TInputImage, class TOutputImage, class TParentImageFilter >
 GPUFiniteDifferenceImageFilter< TInputImage, TOutputImage, TParentImageFilter >
 ::GPUFiniteDifferenceImageFilter()
 {
+/*
   m_UseImageSpacing    = false;
   m_ElapsedIterations  = 0;
   m_DifferenceFunction = 0;
@@ -38,6 +39,7 @@ GPUFiniteDifferenceImageFilter< TInputImage, TOutputImage, TParentImageFilter >
   m_State = UNINITIALIZED;
   m_ManualReinitialization = false;
   this->InPlaceOff();
+  */
 }
 
 template< class TInputImage, class TOutputImage, class TParentImageFilter >
@@ -57,7 +59,7 @@ GPUFiniteDifferenceImageFilter< TInputImage, TOutputImage, TParentImageFilter >
     itkWarningMacro("Output pixel type MUST be float or double to prevent computational errors");
     }
 
-  if ( this->GetState() == UNINITIALIZED )
+  if ( this->GetIsInitialized() == false )
     {
     // Allocate the output image
     //this->AllocateOutputs();
@@ -79,7 +81,7 @@ GPUFiniteDifferenceImageFilter< TInputImage, TOutputImage, TParentImageFilter >
     this->AllocateUpdateBuffer();
 
     this->SetStateToInitialized();
-    m_ElapsedIterations = 0;
+    this->SetElapsedIterations( 0 );
     }
 
   // Iterative algorithm
@@ -254,7 +256,7 @@ GPUFiniteDifferenceImageFilter< TInputImage, TOutputImage, TParentImageFilter >
   // Set the coefficients for the derivatives
   double coeffs[TOutputImage::ImageDimension];
 
-  if ( this->m_UseImageSpacing )
+  if ( this->GetUseImageSpacing() )
     {
     const TOutputImage *outputImage =  this->GetOutput();
     if ( outputImage == NULL )
@@ -277,7 +279,7 @@ GPUFiniteDifferenceImageFilter< TInputImage, TOutputImage, TParentImageFilter >
       coeffs[i] = 1.0;
       }
     }
-  m_DifferenceFunction->SetScaleCoefficients(coeffs);
+  this->GetDifferenceFunction()->SetScaleCoefficients(coeffs);
 }
 
 
@@ -288,6 +290,7 @@ GPUFiniteDifferenceImageFilter< TInputImage, TOutputImage, TParentImageFilter >
 {
   GPUSuperclass::PrintSelf(os, indent);
 
+  /*
   os << indent << "ElapsedIterations: " << m_ElapsedIterations << std::endl;
   os << indent << "UseImageSpacing: " << ( m_UseImageSpacing ? "On" : "Off" ) << std::endl;
   os << indent << "State: " << m_State << std::endl;
@@ -306,6 +309,7 @@ GPUFiniteDifferenceImageFilter< TInputImage, TOutputImage, TParentImageFilter >
     os << indent << "DifferenceFunction: " << "(None)" << std::endl;
     }
   os << std::endl;
+  */
 }
 } // end namespace itk
 

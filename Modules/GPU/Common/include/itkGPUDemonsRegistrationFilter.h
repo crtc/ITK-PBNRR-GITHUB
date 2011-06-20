@@ -100,8 +100,8 @@ public:
   typedef typename TDeformationField::Pointer   DeformationFieldPointer;
 
   /** FiniteDifferenceFunction type. */
-  typedef typename Superclass::FiniteDifferenceFunctionType
-  FiniteDifferenceFunctionType;
+  typedef typename GPUSuperclass::GPUFiniteDifferenceFunctionType
+  GPUFiniteDifferenceFunctionType;
 
   /** GPUDemonsRegistrationFilterFunction type. */
   typedef GPUDemonsRegistrationFunction< FixedImageType, MovingImageType,

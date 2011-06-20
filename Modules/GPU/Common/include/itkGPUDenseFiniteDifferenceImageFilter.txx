@@ -152,11 +152,15 @@ GPUDenseFiniteDifferenceImageFilter< TInputImage, TOutputImage, TParentImageFilt
   TimeStepType timeStep;
   void *       globalData;
 
+  //FiniteDifferenceFunction< OutputImageType > *df
+  //  = dynamic_cast< FiniteDifferenceFunction< OutputImageType > * >( this->GetDifferenceFunction().GetPointer() );
   GPUFiniteDifferenceFunction< OutputImageType > *df
     = dynamic_cast< GPUFiniteDifferenceFunction< OutputImageType > * >( this->GetDifferenceFunction().GetPointer() );
+  //GPUDemonsRegistrationFunction< TInputImage, TOutputImage, OutputImageType > *df
+  //  = dynamic_cast< GPUDemonsRegistrationFunction<TInputImage, TOutputImage, OutputImageType > * >( this->GetDifferenceFunction().GetPointer() );
 
   globalData = df->GetGlobalDataPointer();
-  df->GPUComputeUpdate( output, GetUpdateBuffer(), globalData );
+  df->GPUComputeUpdate( output, this->GetUpdateBuffer(), globalData );
 
   //// Ask the finite difference function to compute the time step for
   //// this iteration.  We give it the global data pointer to use, then

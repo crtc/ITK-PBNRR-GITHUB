@@ -107,8 +107,8 @@ public:
   typedef typename GPUSuperclass::OutputImageType OutputImageType;
 
   /** FiniteDifferenceFunction type. */
-  typedef typename GPUSuperclass::FiniteDifferenceFunctionType
-  FiniteDifferenceFunctionType;
+  typedef typename GPUSuperclass::GPUFiniteDifferenceFunctionType
+  GPUFiniteDifferenceFunctionType;
 
   /** GPUPDEDeformableRegistrationFilterFunction type. */
   typedef GPUPDEDeformableRegistrationFunction< FixedImageType, MovingImageType,
@@ -123,18 +123,6 @@ protected:
   ~GPUPDEDeformableRegistrationFilter() {}
   void PrintSelf(std::ostream & os, Indent indent) const;
 
-  /** Supplies the halting criteria for this class of filters.  The
-   * algorithm will stop after a user-specified number of iterations. */
-  bool Halt()
-  {
-    if ( m_StopRegistrationFlag )
-      {
-      return true;
-      }
-
-    return this->Superclass::Halt();
-  }
-
   /** A simple method to copy the data from the input to the output.
    * If the input does not exist, a zero field is written to the output. */
   virtual void CopyInputToOutput();
@@ -146,7 +134,7 @@ protected:
   /** Utility to smooth the deformation field (represented in the Output)
    * using a Guassian operator. The amount of smoothing can be specified
    * by setting the StandardDeviations. */
-  void SmoothDeformationField();
+  virtual void SmoothDeformationField();
   virtual void GPUSmoothDeformationField();
 
   /** Utility to smooth the UpdateBuffer using a Gaussian operator.
@@ -156,7 +144,7 @@ protected:
 
   /** This method is called after the solution has been generated. In this case,
    * the filter release the memory of the internal buffers. */
-  //virtual void PostProcessOutput();
+  virtual void PostProcessOutput();
 
   /** This method is called before iterating the solution. */
   virtual void Initialize();
@@ -167,6 +155,10 @@ private:
   GPUPDEDeformableRegistrationFilter(const Self &); //purposely not implemented
   void operator=(const Self &);                  //purposely not implemented
 
+  // m_TempField is the GPU version of smoothing buffer
+  // it is declared here since it is inaccessible from the cpu version
+  // the gpu and cpu memory is allocated in Initialize()
+  DeformationFieldPointer          m_TempField;
   int                              m_SmoothingKernelSize;
   float*                           m_SmoothingKernel;
   typename GPUDataManager::Pointer m_GPUSmoothingKernel;

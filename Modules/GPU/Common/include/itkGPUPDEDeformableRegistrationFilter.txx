@@ -126,7 +126,6 @@ GPUPDEDeformableRegistrationFilter< TFixedImage, TMovingImage, TDeformationField
 /*
  * Release memory of internal buffers
  */
-/*
 template< class TFixedImage, class TMovingImage, class TDeformationField, class TParentImageFilter >
 void
 GPUPDEDeformableRegistrationFilter< TFixedImage, TMovingImage, TDeformationField, TParentImageFilter >
@@ -135,7 +134,7 @@ GPUPDEDeformableRegistrationFilter< TFixedImage, TMovingImage, TDeformationField
   this->Superclass::PostProcessOutput();
   m_TempField->Initialize();
 }
-*/
+
 /*
  * Initialize flags
  */
@@ -147,6 +146,7 @@ GPUPDEDeformableRegistrationFilter< TFixedImage, TMovingImage, TDeformationField
   this->Superclass::Initialize();
   m_StopRegistrationFlag = false;
   this->AllocateSmoothingBuffer();
+  m_SmoothingKernel = NULL;
 }
 
 /*
