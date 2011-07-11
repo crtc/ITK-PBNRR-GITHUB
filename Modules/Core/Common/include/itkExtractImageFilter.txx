@@ -19,7 +19,7 @@
 #define __itkExtractImageFilter_txx
 
 #include "itkExtractImageFilter.h"
-#include "itkImageRegionIterator.h"
+#include "itkImageAlgorithm.h"
 #include "itkObjectFactory.h"
 #include "itkProgressReporter.h"
 
@@ -32,7 +32,7 @@ template< class TInputImage, class TOutputImage >
 ExtractImageFilter< TInputImage, TOutputImage >
 ::ExtractImageFilter():
 #ifdef ITKV3_COMPATIBILITY
-  m_DirectionCollaspeStrategy(DIRECTIONCOLLASPETOGUESS)
+  m_DirectionCollaspeStrategy(DIRECTIONCOLLAPSETOGUESS)
 #else
   m_DirectionCollaspeStrategy(DIRECTIONCOLLAPSETOUNKOWN)
 #endif
@@ -211,12 +211,12 @@ ExtractImageFilter< TInputImage, TOutputImage >
     // length cosine vector, reset the directions to identity.
     switch(m_DirectionCollaspeStrategy)
       {
-    case DIRECTIONCOLLASPETOIDENTITY:
+    case DIRECTIONCOLLAPSETOIDENTITY:
         {
         outputDirection.SetIdentity();
         }
       break;
-    case DIRECTIONCOLLASPETOSUBMATRIX:
+    case DIRECTIONCOLLAPSETOSUBMATRIX:
         {
         if ( vnl_determinant( outputDirection.GetVnlMatrix() ) == 0.0 )
           {
@@ -224,7 +224,7 @@ ExtractImageFilter< TInputImage, TOutputImage >
           }
         }
       break;
-    case DIRECTIONCOLLASPETOGUESS:
+    case DIRECTIONCOLLAPSETOGUESS:
         {
         if ( vnl_determinant( outputDirection.GetVnlMatrix() ) == 0.0 )
           {
@@ -279,32 +279,20 @@ ExtractImageFilter< TInputImage, TOutputImage >
   itkDebugMacro(<< "Actually executing");
 
   // Get the input and output pointers
-  typename Superclass::InputImageConstPointer inputPtr = this->GetInput();
-  typename Superclass::OutputImagePointer outputPtr = this->GetOutput();
+  const InputImageType *inputPtr = this->GetInput();
+  OutputImageType      *outputPtr = this->GetOutput();
 
   // support progress methods/callbacks
-  ProgressReporter progress( this, threadId, outputRegionForThread.GetNumberOfPixels() );
+  ProgressReporter progress( this, threadId, 1 );
 
   // Define the portion of the input to walk for this thread
   InputImageRegionType inputRegionForThread;
   this->CallCopyOutputRegionToInputRegion(inputRegionForThread, outputRegionForThread);
 
-  // Define the iterators.
-  typedef ImageRegionIterator< TOutputImage >     OutputIterator;
-  typedef ImageRegionConstIterator< TInputImage > InputIterator;
+  // copy the input pixel to the output
+  ImageAlgorithm::Copy( inputPtr, outputPtr, inputRegionForThread, outputRegionForThread );
+  progress.CompletedPixel();
 
-  OutputIterator outIt(outputPtr, outputRegionForThread);
-  InputIterator  inIt(inputPtr, inputRegionForThread);
-
-  // walk the output region, and sample the input image
-  while ( !outIt.IsAtEnd() )
-    {
-    // copy the input pixel to the output
-    outIt.Set( static_cast< OutputImagePixelType >( inIt.Get() ) );
-    ++outIt;
-    ++inIt;
-    progress.CompletedPixel();
-    }
 }
 } // end namespace itk
 

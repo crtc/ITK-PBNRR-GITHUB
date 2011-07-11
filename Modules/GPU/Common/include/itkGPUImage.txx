@@ -163,7 +163,7 @@ template <class TPixel, unsigned int VImageDimension>
 void
 GPUImage< TPixel, VImageDimension >::Graft(const DataObject *data)
 {
-  typedef typename GPUImageDataManager< GPUImage >     GPUImageDataManagerType;
+  typedef GPUImageDataManager< GPUImage >              GPUImageDataManagerType;
   typedef typename GPUImageDataManagerType::Superclass GPUImageDataSuperclass;
   typedef typename GPUImageDataSuperclass::Pointer     GPUImageDataSuperclassPointer;
 

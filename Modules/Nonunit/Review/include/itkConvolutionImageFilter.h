@@ -20,10 +20,31 @@
 
 #include "itkImageToImageFilter.h"
 
+#include "itkProgressAccumulator.h"
+#include "itkZeroFluxNeumannBoundaryCondition.h"
+
 namespace itk
 {
 /** \class ConvolutionImageFilter
- * \brief Convolve a given image with an arbitrary image kernel
+ * \brief Convolve a given image with an arbitrary image kernel.
+ *
+ * This filter operates by centering the kernel at each pixel in the
+ * image and computing the inner product between pixel values in the
+ * image and pixel values in the kernel. The center of the kernel is
+ * defined as \f$ \lfloor (2*i+s-1)/2 \rfloor \f$ where \f$i\f$ is the
+ * index and \f$s\f$ is the size of the largest possible region of the
+ * kernel image. For kernels with odd sizes in all dimensions, this
+ * corresponds to the center pixel. If a dimension of the kernel image
+ * has an even size, then the center index of the kernel in that
+ * dimension will be the largest integral index that is less than the
+ * continuous index of the image center.
+ *
+ * The kernel can optionally be normalized to sum to 1 using
+ * NormalizeOn(). Normalization is off by default.
+ *
+ * \warning This filter ignores the spacing, origin, and orientation
+ * of the kernel image and treats them as identical to those in the
+ * input image.
  *
  * This code was contributed in the Insight Journal paper:
  *
@@ -41,7 +62,7 @@ namespace itk
  * \endwiki
  */
 template< class TInputImage, class TOutputImage = TInputImage >
-class ITK_EXPORT ConvolutionImageFilter:
+class ITK_EXPORT ConvolutionImageFilter :
   public ImageToImageFilter< TInputImage, TOutputImage >
 {
 public:
@@ -64,14 +85,26 @@ public:
   typedef TOutputImage                         OutputImageType;
   typedef typename InputImageType::PixelType   InputPixelType;
   typedef typename OutputImageType::PixelType  OutputPixelType;
+  typedef typename InputImageType::SizeType    InputSizeType;
+  typedef typename OutputImageType::SizeType   OutputSizeType;
+  typedef typename InputImageType::RegionType  InputRegionType;
   typedef typename OutputImageType::RegionType OutputRegionType;
 
+  /** Typedef to describe the boundary condition. */
+  typedef ImageBoundaryCondition< TInputImage >           BoundaryConditionType;
+  typedef BoundaryConditionType *                         BoundaryConditionPointerType;
+  typedef ZeroFluxNeumannBoundaryCondition< TInputImage > DefaultBoundaryConditionType;
+
+  /** Set/get the boundary condition. */
+  itkSetMacro(BoundaryCondition, BoundaryConditionPointerType);
+  itkGetConstMacro(BoundaryCondition, BoundaryConditionPointerType);
+
+  /** Set/get the image kernel. */
   itkSetInputMacro(ImageKernel, InputImageType, 1);
   itkGetInputMacro(ImageKernel, InputImageType, 1);
 
-  /**
-   * Normalize the output image by the sum of the kernel components
-   */
+  /** Normalize the output image by the sum of the kernel
+   * components. Defaults to off. */
   itkSetMacro(Normalize, bool);
   itkGetConstMacro(Normalize, bool);
   itkBooleanMacro(Normalize);
@@ -84,20 +117,32 @@ public:
   virtual void GenerateInputRequestedRegion();
 
 protected:
-  /** de/constructor */
   ConvolutionImageFilter();
   ~ConvolutionImageFilter();
 
   void PrintSelf(std::ostream & os, Indent indent) const;
 
-  void ThreadedGenerateData(const OutputRegionType & outputRegionForThread, ThreadIdType threadId);
+  void GenerateData();
+
+  /** The kernel needs padding if any of the sizes of its dimensions is
+   * even. This method checks for this condition. */
+  bool GetKernelNeedsPadding() const;
+
+  /** Calculates the padding width needed to make each dimension odd. */
+  InputSizeType GetKernelPadSize() const;
 
 private:
   ConvolutionImageFilter(const Self &); //purposely not implemented
   void operator=(const Self &);         //purposely not implemented
 
-private:
+  template< class TKernelImage >
+  void ComputeConvolution( const TKernelImage *kernelImage,
+                           ProgressAccumulator *progress );
+
   bool m_Normalize;
+
+  DefaultBoundaryConditionType m_DefaultBoundaryCondition;
+  BoundaryConditionPointerType m_BoundaryCondition;
 };
 }
 
