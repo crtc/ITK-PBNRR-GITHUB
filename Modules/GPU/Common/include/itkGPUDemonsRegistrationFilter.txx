@@ -160,7 +160,9 @@ GPUDemonsRegistrationFilter< TFixedImage, TMovingImage, TDeformationField, TPare
     this->SmoothUpdateField();
     }
 
+  m_ApplyUpdateTime.Start();
   this->GPUSuperclass::ApplyUpdate(dt);
+  m_ApplyUpdateTime.Stop();
 
   GPUDemonsRegistrationFunctionType *drfp =
     dynamic_cast< GPUDemonsRegistrationFunctionType * >

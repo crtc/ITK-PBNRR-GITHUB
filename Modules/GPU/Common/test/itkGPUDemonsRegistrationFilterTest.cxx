@@ -66,16 +66,16 @@ public:
   typename TRegistration::Pointer m_Process;
 };
 
-const unsigned int Dimension = 2;
-const unsigned int numOfIterations = 2000;
+const unsigned int ImageDimension = 2;
+const unsigned int testIterations = 5;
+const unsigned int numOfIterations = 500;
 
 itk::TimeProbe gpuTime, cpuTime;
-itk::TimeProbe gpuInitTime, computeUpdateTime, applyUpdateTime, smoothFieldTime;
 
-typedef float                                           InternalPixelType;
-typedef itk::Vector< float, Dimension >                 VectorPixelType;
-typedef itk::GPUImage<  VectorPixelType, Dimension >    GPUDeformationFieldType;
-typedef itk::Image<  VectorPixelType, Dimension >       CPUDeformationFieldType;
+typedef float                                             InternalPixelType;
+typedef itk::Vector< float, ImageDimension >              VectorPixelType;
+typedef itk::GPUImage<  VectorPixelType, ImageDimension > GPUDeformationFieldType;
+typedef itk::Image<  VectorPixelType, ImageDimension >    CPUDeformationFieldType;
 
 itk::SmartPointer<GPUDeformationFieldType> itkGPUDemons(int argc, char *argv[], unsigned int &size);
 itk::SmartPointer<CPUDeformationFieldType> itkCPUDemons(int argc, char *argv[], unsigned int &size);
@@ -111,14 +111,10 @@ int itkGPUDemonsRegistrationFilterTest(int argc, char *argv[])
   GPUDeformationFieldType::Pointer gpuOut;
   CPUDeformationFieldType::Pointer cpuOut;
 
-  int testIterations = 2;
   for (int i=0; i<testIterations; i++)
     {
     std::cout << "Starting GPU Demons" << std::endl;
-    gpuTime.Start();
-    gpuInitTime.Start();
     gpuOut = (itkGPUDemons(argc, argv, size1));
-    gpuTime.Stop();
     std::cout << "Finished GPU Demons" << std::endl;
 
     std::cout << "Starting CPU Demons" << std::endl;
@@ -127,10 +123,9 @@ int itkGPUDemonsRegistrationFilterTest(int argc, char *argv[])
     cpuTime.Stop();
     std::cout << "Finished CPU Demons" << std::endl;
 
-    std::cout << "Total GPU time in seconds = " << gpuTime.GetMeanTime() << std::endl;
-    std::cout << "Initial GPU time in seconds = " << gpuInitTime.GetMeanTime() << std::endl;
-    std::cout << "Total CPU time in seconds = " << cpuTime.GetMeanTime() << std::endl;
     }
+  std::cout << "Total GPU time in seconds = " << gpuTime.GetMeanTime() << std::endl;
+  std::cout << "Total CPU time in seconds = " << cpuTime.GetMeanTime() << std::endl;
   InternalPixelType maxDiff = 0, avgDiff = 0, diff, tmp;
 
   InternalPixelType *gpuBuf, *cpuBuf;
@@ -140,9 +135,9 @@ int itkGPUDemonsRegistrationFilterTest(int argc, char *argv[])
   for (unsigned int i=0; i<size1; i++)
     {
     diff = 0;
-    for (unsigned int d=0; d<Dimension; d++)
+    for (unsigned int d=0; d<ImageDimension; d++)
       {
-      tmp = gpuBuf[i*Dimension+d] - cpuBuf[i*Dimension+d];
+      tmp = gpuBuf[i*ImageDimension+d] - cpuBuf[i*ImageDimension+d];
       diff += tmp * tmp;
       }
     diff = vcl_sqrt(diff);
@@ -194,7 +189,7 @@ itk::SmartPointer<GPUDeformationFieldType> itkGPUDemons(int argc, char *argv[], 
   return 0;*/
   // testing done
 
-  const unsigned int Dimension = 2;
+  const unsigned int Dimension = ImageDimension;
   typedef unsigned short PixelType;
 
   typedef itk::Image< PixelType, Dimension >  FixedImageType;
@@ -261,8 +256,14 @@ itk::SmartPointer<GPUDeformationFieldType> itkGPUDemons(int argc, char *argv[], 
 
   filter->SetNumberOfIterations( numOfIterations );
   filter->SetStandardDeviations( 1.0 );
+  gpuTime.Start();
   filter->Update();
+  gpuTime.Stop();
 
+  std::cout << "GPU InitTime in seconds = "          << filter->GetInitTime().GetTotal() << std::endl;
+  std::cout << "GPU ComputeUpdateTime in seconds = " << filter->GetComputeUpdateTime().GetTotal() << std::endl;
+  std::cout << "GPU ApplyUpdateTime in seconds = "   << filter->GetApplyUpdateTime().GetTotal() << std::endl;
+  std::cout << "GPU SmoothFieldTime in seconds = "   << filter->GetSmoothFieldTime().GetTotal() << std::endl;
 
   //warp the image with the deformation field
   typedef itk::WarpImageFilter<
@@ -295,14 +296,14 @@ itk::SmartPointer<GPUDeformationFieldType> itkGPUDemons(int argc, char *argv[], 
   WriterType::Pointer      writer =  WriterType::New();
   CastFilterType::Pointer  caster =  CastFilterType::New();
 
-  char *outName = AppendFileName(argv[3], "_gpu");
+  char *outName = AppendFileName(argv[3], (char *)"_gpu");
   writer->SetFileName( outName );
 
   caster->SetInput( warper->GetOutput() );
   writer->SetInput( caster->GetOutput()   );
   writer->Update();
 
-  size = (unsigned int)(filter->GetFixedImage()->GetOffsetTable()[Dimension]);
+  size = (unsigned int)(filter->GetFixedImage()->GetLargestPossibleRegion().GetNumberOfPixels());
   GPUDeformationFieldType::Pointer ret = filter->GetOutput();
 
   return ret;
@@ -310,7 +311,7 @@ itk::SmartPointer<GPUDeformationFieldType> itkGPUDemons(int argc, char *argv[], 
 
 itk::SmartPointer<CPUDeformationFieldType> itkCPUDemons(int argc, char *argv[], unsigned int &size)
 {
-  const unsigned int Dimension = 2;
+  const unsigned int Dimension = ImageDimension;
   typedef unsigned short PixelType;
 
   typedef itk::Image< PixelType, Dimension >  FixedImageType;
@@ -377,7 +378,9 @@ itk::SmartPointer<CPUDeformationFieldType> itkCPUDemons(int argc, char *argv[], 
 
   filter->SetNumberOfIterations( numOfIterations );
   filter->SetStandardDeviations( 1.0 );
+  cpuTime.Start();
   filter->Update();
+  cpuTime.Stop();
 
 
   //warp the image with the deformation field
@@ -411,14 +414,14 @@ itk::SmartPointer<CPUDeformationFieldType> itkCPUDemons(int argc, char *argv[], 
   WriterType::Pointer      writer =  WriterType::New();
   CastFilterType::Pointer  caster =  CastFilterType::New();
 
-  char *outName = AppendFileName(argv[3], "_cpu");
+  char *outName = AppendFileName(argv[3], (char *)"_cpu");
   writer->SetFileName( outName );
 
   caster->SetInput( warper->GetOutput() );
   writer->SetInput( caster->GetOutput()   );
   writer->Update();
 
-  size = (unsigned int)(filter->GetFixedImage()->GetOffsetTable()[Dimension]);
+  size = (unsigned int)(filter->GetFixedImage()->GetLargestPossibleRegion().GetNumberOfPixels());
   CPUDeformationFieldType::Pointer ret = filter->GetOutput();
 
   return ret;

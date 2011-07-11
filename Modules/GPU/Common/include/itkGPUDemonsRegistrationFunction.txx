@@ -193,20 +193,41 @@ GPUDemonsRegistrationFunction< TFixedImage, TMovingImage, TDeformationField >
   m_NumberOfPixelsProcessed = 0L;
   m_SumOfSquaredChange      = 0.0;
 
+}
+
+/**
+ * Allocate GPU buffers for computing metric statitics
+ */
+template< class TFixedImage, class TMovingImage, class TDeformationField >
+void
+GPUDemonsRegistrationFunction< TFixedImage, TMovingImage, TDeformationField >
+::GPUAllocateMetricData(unsigned int numPixels)
+{
   // allocate gpu buffers for statistics
-  unsigned int numPixel = (unsigned int)(this->GetFixedImage()->GetOffsetTable()[ImageDimension]);
+  // if (m_GPUPixelCounter == (GPUReduction<int>::Pointer)NULL)
 
-  if (m_GPUPixelCounter == (GPUReduction<int>::Pointer)NULL)
-    {
-    m_GPUPixelCounter       = GPUReduction<int>::New();
-    m_GPUSquaredChange      = GPUReduction<float>::New();
-    m_GPUSquaredDifference  = GPUReduction<float>::New();
+  m_GPUPixelCounter       = GPUReduction<int>::New();
+  m_GPUSquaredChange      = GPUReduction<float>::New();
+  m_GPUSquaredDifference  = GPUReduction<float>::New();
 
-    m_GPUPixelCounter->InitializeKernel(numPixel);
-    m_GPUSquaredChange->InitializeKernel(numPixel);
-    m_GPUSquaredDifference->InitializeKernel(numPixel);
-    gpuInitTime.Stop();
-    }
+  m_GPUPixelCounter->InitializeKernel(numPixels);
+  m_GPUSquaredChange->InitializeKernel(numPixels);
+  m_GPUSquaredDifference->InitializeKernel(numPixels);
+
+  m_GPUPixelCounter->AllocateGPUInputBuffer();
+  m_GPUSquaredChange->AllocateGPUInputBuffer();
+  m_GPUSquaredDifference->AllocateGPUInputBuffer();
+
+}
+
+template< class TFixedImage, class TMovingImage, class TDeformationField >
+void
+GPUDemonsRegistrationFunction< TFixedImage, TMovingImage, TDeformationField >
+::GPUReleaseMetricData()
+{
+  m_GPUPixelCounter->ReleaseGPUInputBuffer( );
+  m_GPUSquaredChange->ReleaseGPUInputBuffer( );
+  m_GPUSquaredDifference->ReleaseGPUInputBuffer( );
 }
 
 /**
@@ -221,14 +242,9 @@ GPUDemonsRegistrationFunction< TFixedImage, TMovingImage, TDeformationField >
                     void *gd
                     )
 {
-  TFixedImage::ConstPointer  fixedImage  = dynamic_cast< const TFixedImage * >( this->GetFixedImage() );
-  TMovingImage::ConstPointer movingImage = dynamic_cast< const TMovingImage * >( this->GetMovingImage() );
+  typename TFixedImage::ConstPointer  fixedImage  = dynamic_cast< const TFixedImage * >( this->GetFixedImage() );
+  typename TMovingImage::ConstPointer movingImage = dynamic_cast< const TMovingImage * >( this->GetMovingImage() );
   typename DeformationFieldType::SizeType outSize = output->GetLargestPossibleRegion().GetSize();
-
-  unsigned int numPixel = (unsigned int)(fixedImage->GetOffsetTable()[ImageDimension]);
-  m_GPUPixelCounter->AllocateGPUInputBuffer(numPixel);
-  m_GPUSquaredChange->AllocateGPUInputBuffer(numPixel);
-  m_GPUSquaredDifference->AllocateGPUInputBuffer(numPixel);
 
   int imgSize[3];
   imgSize[0] = imgSize[1] = imgSize[2] = 1;
@@ -269,6 +285,7 @@ GPUDemonsRegistrationFunction< TFixedImage, TMovingImage, TDeformationField >
   // launch kernel
   this->m_GPUKernelManager->LaunchKernel(m_ComputeUpdateGPUKernelHandle, (int)DeformationFieldType::ImageDimension, globalSize, localSize );
 
+  // compute statistics
   m_GPUPixelCounter->GPUGenerateData();
   m_GPUSquaredChange->GPUGenerateData();
   m_GPUSquaredDifference->GPUGenerateData();
@@ -284,10 +301,6 @@ GPUDemonsRegistrationFunction< TFixedImage, TMovingImage, TDeformationField >
     m_RMSChange = vcl_sqrt( m_SumOfSquaredChange /
                             static_cast<double>( m_NumberOfPixelsProcessed ) );
     }
-
-  m_GPUPixelCounter->ReleaseGPUInputBuffer( );
-  m_GPUSquaredChange->ReleaseGPUInputBuffer( );
-  m_GPUSquaredDifference->ReleaseGPUInputBuffer( );
 }
 
 /**

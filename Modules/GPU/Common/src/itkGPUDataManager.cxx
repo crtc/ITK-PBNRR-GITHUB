@@ -191,7 +191,18 @@ void GPUDataManager::Graft(const GPUDataManager* data)
     m_BufferSize = data->m_BufferSize;
     m_ContextManager = data->m_ContextManager;
     m_CommandQueueId = data->m_CommandQueueId;
+
+    if ( m_GPUBuffer ) // Decrease reference count to GPU memory
+      {
+      clReleaseMemObject(m_GPUBuffer);
+      }
+    if ( data->m_GPUBuffer ) // Increase reference count to GPU memory
+      {
+      clRetainMemObject(data->m_GPUBuffer);
+      }
+
     m_GPUBuffer = data->m_GPUBuffer;
+
     m_CPUBuffer = data->m_CPUBuffer;
 //    m_Platform  = data->m_Platform;
 //    m_Context   = data->m_Context;

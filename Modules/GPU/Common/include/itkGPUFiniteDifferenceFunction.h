@@ -101,6 +101,14 @@ public:
                                  typename TImageType::Pointer update,
                                  void *gd) = 0;
 
+  /** Allocate GPU buffers for computing metric statitics
+   * */
+  virtual void GPUAllocateMetricData(unsigned int numPixels) {}
+
+  /** Release GPU buffers for computing metric statitics
+   * */
+  virtual void GPUReleaseMetricData() {}
+
 protected:
   GPUFiniteDifferenceFunction() { m_GPUKernelManager = GPUKernelManager::New(); };
   ~GPUFiniteDifferenceFunction() {}

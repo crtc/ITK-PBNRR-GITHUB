@@ -21,8 +21,6 @@
 #include "itkGPUReduction.h"
 #include "itkMacro.h"
 
-//#define CPU_VERIFY
-
 namespace itk
 {
 /**
@@ -34,7 +32,14 @@ GPUReduction< TElement >
 {
   /*** Prepare GPU opencl program ***/
   m_GPUKernelManager = GPUKernelManager::New();
+  m_GPUDataManager = NULL;
 
+}
+template< class TElement >
+GPUReduction< TElement >
+::~GPUReduction()
+{
+  this->ReleaseGPUInputBuffer();
 }
 
 /**
@@ -127,7 +132,8 @@ GPUReduction< TElement >
   unsigned int handle = this->m_GPUKernelManager->CreateKernel(kernelName.str().c_str());
 
   size_t wgSize;
-  cl_int ciErrNum = this->m_GPUKernelManager->GetKernelWorkGroupInfo(handle, CL_KERNEL_WORK_GROUP_SIZE, &wgSize);
+  this->m_GPUKernelManager->GetKernelWorkGroupInfo(handle, CL_KERNEL_WORK_GROUP_SIZE, &wgSize);
+
   m_SmallBlock = (wgSize == 64);
 
   // NOTE: the program will get deleted when the kernel is also released
@@ -139,22 +145,19 @@ GPUReduction< TElement >
 template< class TElement >
 void
 GPUReduction< TElement >
-::AllocateGPUInputBuffer(unsigned int size)
+::AllocateGPUInputBuffer(TElement *h_idata)
 {
-  m_Size = size;
-
-  unsigned int bytes = size * sizeof(TElement);
-  TElement* h_idata = NULL;
-#ifdef CPU_VERIFY
-  h_idata = (TElement*)malloc(bytes);
-#endif
+  unsigned int bytes = m_Size * sizeof(TElement);
 
   m_GPUDataManager = GPUDataManager::New();
   m_GPUDataManager->SetBufferSize( bytes );
   m_GPUDataManager->SetCPUBufferPointer( h_idata );
   m_GPUDataManager->Allocate();
 
-  //free(h_idata);
+  if (h_idata)
+    {
+    m_GPUDataManager->SetGPUDirtyFlag(true);
+    }
 }
 
 template< class TElement >
@@ -162,14 +165,10 @@ void
 GPUReduction< TElement >
 ::ReleaseGPUInputBuffer()
 {
-#ifdef CPU_VERIFY
-  m_GPUDataManager->SetCPUDirtyFlag(false);
-  TElement* h_idata = (TElement*)m_GPUDataManager->GetCPUBufferPointer(); //debug
-  if (h_idata)
+  if (m_GPUDataManager == (GPUDataPointer)NULL)
     {
-    free(h_idata);
+    return;
     }
-#endif
 
   m_GPUDataManager->Initialize();
 }
@@ -180,7 +179,6 @@ GPUReduction< TElement >
 ::RandomTest()
 {
   int size = (1<<24)-1917;    // number of elements to reduce
-  m_Size = size;
 
   this->InitializeKernel(size);
 
@@ -193,9 +191,7 @@ GPUReduction< TElement >
       h_idata[i] = (TElement)(rand() & 0xFF);
   }
 
-  this->AllocateGPUInputBuffer(size);
-  m_GPUDataManager->SetCPUBufferPointer( h_idata );
-  m_GPUDataManager->SetGPUDirtyFlag(true);
+  this->AllocateGPUInputBuffer(h_idata);
 
   TElement gpu_result = this->GPUGenerateData();
   std::cout << "GPU result = " << gpu_result << std::endl << std::flush;
@@ -203,8 +199,9 @@ GPUReduction< TElement >
   TElement cpu_result = this->CPUGenerateData(h_idata, size);
   std::cout << "CPU result = " << cpu_result << std::endl;
 
-  free(h_idata);
   this->ReleaseGPUInputBuffer();
+
+  free(h_idata);
 
   return 0;
 }
@@ -217,10 +214,11 @@ GPUReduction< TElement >
   m_Size = size;
 
   // Create a testing kernel to decide block size
-  m_TestGPUKernelHandle = this->GetReductionKernel(6, 64, 1);
+  //m_TestGPUKernelHandle = this->GetReductionKernel(6, 64, 1);
   //m_GPUKernelManager->ReleaseKernel(kernelHandle);
 
   // number of threads per block
+  m_SmallBlock = true;
   int maxThreads = m_SmallBlock ? 64 : 128;
 
   int whichKernel = 6;
@@ -249,8 +247,6 @@ GPUReduction< TElement >
   bool cpuFinalReduction = true;
   int cpuFinalThreshold = 1;
 
-  unsigned long bytes = size * sizeof(TElement);
-
   int numBlocks = 0;
   int numThreads = 0;
 
@@ -274,8 +270,6 @@ GPUReduction< TElement >
                                   whichKernel, cpuFinalReduction,
                                   cpuFinalThreshold, &dTotalTime,
                                   m_GPUDataManager, odata);
-
-  double reduceTime = dTotalTime;
 
   // cleanup
   free(h_odata);
@@ -306,6 +300,7 @@ GPUReduction< TElement >
   this->m_GPUKernelManager->SetKernelArgWithImage(m_ReduceGPUKernelHandle, argidx++, odata);
 
   this->m_GPUKernelManager->SetKernelArg(m_ReduceGPUKernelHandle, argidx++, sizeof(cl_int), &n);
+  //shared memory below
   this->m_GPUKernelManager->SetKernelArg(m_ReduceGPUKernelHandle, argidx++, sizeof(TElement) * numThreads, NULL);
 
   size_t globalSize[1];
@@ -321,12 +316,6 @@ GPUReduction< TElement >
 
   odata->SetCPUDirtyFlag(true);
   TElement* h_odata = (TElement*)odata->GetCPUBufferPointer();
-
-#ifdef CPU_VERIFY
-  idata->SetCPUDirtyFlag(true);
-  TElement* h_idata = (TElement*)idata->GetCPUBufferPointer(); //debug
-  this->CPUGenerateData(h_idata, n);
-#endif
 
   for(int i=0; i<numBlocks; i++)
   {

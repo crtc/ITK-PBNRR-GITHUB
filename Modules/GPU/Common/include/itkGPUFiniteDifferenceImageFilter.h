@@ -21,6 +21,7 @@
 #include "itkGPUInPlaceImageFilter.h"
 #include "itkGPUFiniteDifferenceFunction.h"
 #include "itkFiniteDifferenceImageFilter.h"
+#include "itkTimeProbe.h"
 
 namespace itk
 {
@@ -130,6 +131,12 @@ public:
                    ( Concept::IsFloatingPoint< OutputPixelValueType > ) );
   /** End concept checking */
 #endif
+
+  /** Methods to get timers */
+  itkGetMacro(InitTime,           TimeProbe);
+  itkGetMacro(ComputeUpdateTime,  TimeProbe);
+  itkGetMacro(ApplyUpdateTime,    TimeProbe);
+  itkGetMacro(SmoothFieldTime,    TimeProbe);
 
 protected:
   GPUFiniteDifferenceImageFilter();
@@ -243,6 +250,9 @@ protected:
 
   double m_RMSChange;
   double m_MaximumRMSError;
+
+  /** Timers for statistics */
+  TimeProbe m_InitTime, m_ComputeUpdateTime, m_ApplyUpdateTime, m_SmoothFieldTime;
 
 private:
 

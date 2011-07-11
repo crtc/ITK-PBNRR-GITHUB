@@ -148,6 +148,14 @@ public:
   /** Release memory for global data structure. */
   virtual void ReleaseGlobalDataPointer(void *GlobalData) const;
 
+  /** Allocate GPU buffers for computing metric statitics
+   * */
+  virtual void GPUAllocateMetricData(unsigned int numPixels);
+
+  /** Release GPU buffers for computing metric statitics
+   * */
+  virtual void GPUReleaseMetricData();
+
   /** Set the object's state before each iteration. */
   virtual void InitializeIteration();
 
