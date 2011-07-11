@@ -70,7 +70,7 @@ const unsigned int Dimension = 2;
 const unsigned int numOfIterations = 1000;
 
 itk::TimeProbe gpuTime, cpuTime;
-itk::TimeProbe gpuInitTime, computeUpdateTime, applyUpdateTime, smoothFieldTime;
+//itk::TimeProbe gpuInitTime, computeUpdateTime, applyUpdateTime, smoothFieldTime;
 
 typedef float                                           InternalPixelType;
 typedef itk::Vector< float, Dimension >                 VectorPixelType;
@@ -116,7 +116,7 @@ int itkGPUDemonsRegistrationFilterTest(int argc, char *argv[])
     {
     std::cout << "Starting GPU Demons" << std::endl;
     gpuTime.Start();
-    gpuInitTime.Start();
+    //gpuInitTime.Start();
     gpuOut = (itkGPUDemons(argc, argv, size1));
     gpuTime.Stop();
     std::cout << "Finished GPU Demons" << std::endl;
@@ -128,7 +128,7 @@ int itkGPUDemonsRegistrationFilterTest(int argc, char *argv[])
     std::cout << "Finished CPU Demons" << std::endl;
 
     std::cout << "Total GPU time in seconds = " << gpuTime.GetMeanTime() << std::endl;
-    std::cout << "Initial GPU time in seconds = " << gpuInitTime.GetMeanTime() << std::endl;
+    //std::cout << "Initial GPU time in seconds = " << gpuInitTime.GetMeanTime() << std::endl;
     std::cout << "Total CPU time in seconds = " << cpuTime.GetMeanTime() << std::endl;
     }
   InternalPixelType maxDiff = 0, avgDiff = 0, diff, tmp;

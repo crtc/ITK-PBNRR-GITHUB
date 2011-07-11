@@ -205,7 +205,7 @@ GPUDemonsRegistrationFunction< TFixedImage, TMovingImage, TDeformationField >
     m_GPUPixelCounter->InitializeKernel(numPixel);
     m_GPUSquaredChange->InitializeKernel(numPixel);
     m_GPUSquaredDifference->InitializeKernel(numPixel);
-    gpuInitTime.Stop();
+    //gpuInitTime.Stop();
     }
 }
 
