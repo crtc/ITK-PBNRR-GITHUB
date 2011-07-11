@@ -288,6 +288,10 @@ private:
   float*                           m_SmoothingKernel;
   typename GPUDataManager::Pointer m_GPUSmoothingKernel;
 
+  /** Memery buffer for smoothing kernel. */
+  int*                             m_ImageSizes;
+  typename GPUDataManager::Pointer m_GPUImageSizes;
+
   /* GPU kernel handle for GPUSmoothDeformationField */
   int m_SmoothDeformationFieldGPUKernelHandle;
 

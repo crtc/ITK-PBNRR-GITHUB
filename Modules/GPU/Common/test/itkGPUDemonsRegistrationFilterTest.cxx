@@ -67,7 +67,7 @@ public:
 };
 
 const unsigned int Dimension = 2;
-const unsigned int numOfIterations = 2000;
+const unsigned int numOfIterations = 1000;
 
 itk::TimeProbe gpuTime, cpuTime;
 itk::TimeProbe gpuInitTime, computeUpdateTime, applyUpdateTime, smoothFieldTime;
