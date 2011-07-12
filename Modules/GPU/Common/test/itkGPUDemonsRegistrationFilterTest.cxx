@@ -111,7 +111,7 @@ int itkGPUDemonsRegistrationFilterTest(int argc, char *argv[])
   GPUDeformationFieldType::Pointer gpuOut;
   CPUDeformationFieldType::Pointer cpuOut;
 
-  for (int i=0; i<testIterations; i++)
+  for (unsigned int i=0; i<testIterations; i++)
     {
     std::cout << "Starting GPU Demons" << std::endl;
     gpuOut = (itkGPUDemons(argc, argv, size1));
