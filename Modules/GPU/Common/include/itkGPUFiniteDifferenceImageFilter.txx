@@ -50,7 +50,7 @@ void
 GPUFiniteDifferenceImageFilter< TInputImage, TOutputImage, TParentImageFilter >
 ::GPUGenerateData()
 {
-  m_InitTime.Start();
+  this->m_InitTime.Start();
 
   // Test whether the output pixel type (or its components) are not of type
   // float or double:
@@ -84,7 +84,7 @@ GPUFiniteDifferenceImageFilter< TInputImage, TOutputImage, TParentImageFilter >
     this->m_ElapsedIterations = 0;
     }
 
-  m_InitTime.Stop();
+  this->m_InitTime.Stop();
 
   // Iterative algorithm
   TimeStepType dt;

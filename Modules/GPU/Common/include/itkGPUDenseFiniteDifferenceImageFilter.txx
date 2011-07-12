@@ -164,9 +164,9 @@ GPUDenseFiniteDifferenceImageFilter< TInputImage, TOutputImage, TParentImageFilt
     = dynamic_cast< GPUFiniteDifferenceFunction< OutputImageType > * >( this->GetDifferenceFunction().GetPointer() );
 
   globalData = df->GetGlobalDataPointer();
-  m_ComputeUpdateTime.Start();
+  this->m_ComputeUpdateTime.Start();
   df->GPUComputeUpdate( output, GetUpdateBuffer(), globalData );
-  m_ComputeUpdateTime.Stop();
+  this->m_ComputeUpdateTime.Stop();
 
   //// Ask the finite difference function to compute the time step for
   //// this iteration.  We give it the global data pointer to use, then

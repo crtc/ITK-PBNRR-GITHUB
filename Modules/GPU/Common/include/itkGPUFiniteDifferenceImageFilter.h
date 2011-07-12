@@ -133,10 +133,10 @@ public:
 #endif
 
   /** Methods to get timers */
-  itkGetMacro(InitTime,           TimeProbe);
-  itkGetMacro(ComputeUpdateTime,  TimeProbe);
-  itkGetMacro(ApplyUpdateTime,    TimeProbe);
-  itkGetMacro(SmoothFieldTime,    TimeProbe);
+  itkGetConstReferenceMacro(InitTime,           TimeProbe);
+  itkGetConstReferenceMacro(ComputeUpdateTime,  TimeProbe);
+  itkGetConstReferenceMacro(ApplyUpdateTime,    TimeProbe);
+  itkGetConstReferenceMacro(SmoothFieldTime,    TimeProbe);
 
 protected:
   GPUFiniteDifferenceImageFilter();

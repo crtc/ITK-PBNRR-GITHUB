@@ -552,9 +552,9 @@ void
 GPUPDEDeformableRegistrationFilter< TFixedImage, TMovingImage, TDeformationField, TParentImageFilter >
 ::SmoothDeformationField()
 {
-  m_SmoothFieldTime.Start();
+  this->m_SmoothFieldTime.Start();
   this->GPUSmoothDeformationField();
-  m_SmoothFieldTime.Stop();
+  this->m_SmoothFieldTime.Stop();
 }
 
 /*

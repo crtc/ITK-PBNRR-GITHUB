@@ -118,9 +118,7 @@ int itkGPUDemonsRegistrationFilterTest(int argc, char *argv[])
     std::cout << "Finished GPU Demons" << std::endl;
 
     std::cout << "Starting CPU Demons" << std::endl;
-    cpuTime.Start();
     cpuOut = (itkCPUDemons(argc, argv, size2));
-    cpuTime.Stop();
     std::cout << "Finished CPU Demons" << std::endl;
 
     }
