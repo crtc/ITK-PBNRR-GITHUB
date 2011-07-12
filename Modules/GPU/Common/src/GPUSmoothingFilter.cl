@@ -34,13 +34,7 @@ int GetImageOffset(int order,
                     int index[MAXDIM])
 {
   int idx;
-  /*
-  uint x, y, z;
-  x = (0+order) % MAXDIM;
-  y = (1+order) % MAXDIM;
-  z = (2+order) % MAXDIM;
-  idx = (index[z]*size[y] + index[y])*size[x] + index[x];
-  */
+
   if(order == 0)
   {
     idx = (index[2]*size[1] + index[1])*size[0] + index[0];

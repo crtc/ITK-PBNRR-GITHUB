@@ -68,7 +68,7 @@ public:
 
 const unsigned int ImageDimension = 2;
 const unsigned int testIterations = 2;
-const unsigned int numOfIterations = 500;
+const unsigned int numOfIterations = 600;
 
 itk::TimeProbe gpuTime, cpuTime;
 
