@@ -50,6 +50,7 @@ itkMeanSquaresImageMetricTest.cxx
 itkMutualInformationMetricTest.cxx
 itkPointSetToPointSetRegistrationTest.cxx
 itkSpatialObjectToImageRegistrationTest.cxx
+itkBlockMatchingImageFilterTest.cxx
 )
 
 CreateTestDriver(ITKRegistrationCommon  "${ITKRegistrationCommon-Test_LIBRARIES}" "${ITKRegistrationCommonTests}")
@@ -180,3 +181,5 @@ itk_add_test(NAME itkPointSetToPointSetRegistrationTest
       COMMAND ITKRegistrationCommonTestDriver itkPointSetToPointSetRegistrationTest)
 itk_add_test(NAME itkSpatialObjectToImageRegistrationTest
       COMMAND ITKRegistrationCommonTestDriver itkSpatialObjectToImageRegistrationTest)
+itk_add_test(NAME itkBlockMatchingImageFilterTest
+      COMMAND ITKRegistrationCommonTestDriver itkBlockMatchingImageFilterTest)
